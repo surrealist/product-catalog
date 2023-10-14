@@ -1,0 +1,61 @@
+﻿<h2 id="headProduct">Products</h2>
+
+<div class="bg-light p-2 border border-dark rounded shadow-sm">
+  <button id="btnLoad" class="btn btn-info btn-sm">
+    Load
+  </button>
+</div>
+
+<div id="output">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Picture</th>
+      </tr>
+    </thead>
+    <tbody id="result">
+      <tr class="visually-hidden" id="row-template">
+        <td class="code">00</td>
+        <td class="name">Name</tdc>
+        <td class="picture"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+@section Header {
+  
+}
+
+@section Scripts {
+  <script>
+    $("#btnLoad").click(function () {
+      $(this)
+        .attr("disabled", "disabled")
+        .text("Loading...");
+
+      let url = "https://localhost:7074/api/v1/products";
+
+      $.get(url).then((res) => { 
+        console.log(res);
+        res.forEach(x => {
+          let row = $("#row-template").clone();
+
+          $("td.code", row).text(x.code);
+          $("td.name", row).text(x.name);
+          row.removeClass("visually-hidden");
+          row.removeAttr("id");
+          
+          $("#result").append(row);
+        });
+        $("#btnLoad").removeAttr("disabled")
+          .text("Load");
+      })
+    });
+
+  </script>
+}

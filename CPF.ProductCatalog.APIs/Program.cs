@@ -5,49 +5,58 @@ using CPF.ProductCatalog.APIs.Services;
 
 namespace CPF.ProductCatalog.APIs
 {
-    public class Program
+  public class Program
+  {
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+      var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
+      // Add services to the container.
+      builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
 
-            builder.Services.AddDbContext<AppDb>(options =>
-            {
-                //var cnString = builder.Configuration.GetConnectionString(nameof(AppDb));
-                //options.UseSqlServer(cnString);
-                var cnString = builder.Configuration.GetConnectionString("AppDbLite");
-                options.UseSqlite(cnString);
-            });
+      builder.Services.AddDbContext<AppDb>(options =>
+      {
+        //var cnString = builder.Configuration.GetConnectionString(nameof(AppDb));
+        //options.UseSqlServer(cnString);
+        var cnString = builder.Configuration.GetConnectionString("AppDbLite");
+        options.UseSqlite(cnString);
+      });
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+      builder.Services.AddControllers();
+      // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+      builder.Services.AddEndpointsApiExplorer();
+      builder.Services.AddSwaggerGen();
 
-            builder.Services.AddSingleton<ILoggingService, LoggingService>();
+      builder.Services.AddSingleton<ILoggingService, LoggingService>();
 
-            var app = builder.Build();
+      builder.Services.AddCors(options =>
+      {
+        options.AddPolicy("default",
+          policy =>
+          {
+            // policy.AllowAnyOrigin();
+            policy.WithOrigins("https://localhost:7079");
+          });
+      });
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsEnvironment("Development"))
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+      var app = builder.Build();
 
-            app.UseHttpsRedirection();
-            
-            app.UseStaticFiles();
-            app.UseAuthentication();
-            app.UseAuthorization();
+      // Configure the HTTP request pipeline.
+      if (app.Environment.IsEnvironment("Development"))
+      {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+      }
 
+      app.UseHttpsRedirection();
 
-            app.MapControllers();
+      app.UseStaticFiles();
+      app.UseAuthentication();
+      app.UseAuthorization();
+      app.UseCors("default");
+      app.MapControllers();
 
-            app.Run();
-        }
+      app.Run();
     }
+  }
 }
